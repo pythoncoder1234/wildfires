@@ -1,7 +1,6 @@
 import ee
 
 import pandas as pd
-from math import *
 
 ee.Initialize()
 

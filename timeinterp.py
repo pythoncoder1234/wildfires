@@ -1,5 +1,7 @@
 import numpy as np
 
+debug = True
+DATA_PATH = "wind_df_08_05.csv"
 
 def process_line(line: str):
     values = line.split(",")
@@ -13,8 +15,8 @@ def get_time_str(index: int):
     return "%02d" % (index // 6) + "%02d" % (index % 6 * 10)
 
 
-def run(all_files=False, override=True):
-    generator = get_file_data("wind_df_08_05.csv")
+def time_interp(all_files=False, override=True, *, data_path=DATA_PATH):
+    generator = get_file_data(data_path)
 
     index = count = 0
     time2 = current = prev = None
@@ -106,9 +108,7 @@ def interp(current, prev):
     return output
 
 
-debug = True
-
 if __name__ == "__main__":
     from variables import get_file_data
 
-    run(True)
+    time_interp(True)

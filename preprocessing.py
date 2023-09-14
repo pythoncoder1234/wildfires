@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from timeinterp import save
 
+DATA_PATH = "fire_df_08_05.csv"
 
 def plot_fire(fire_data: list[tuple]):
     xs = []
@@ -46,7 +46,7 @@ def get_fire_data() -> tuple[dict, tuple[float, float, float, float]]:
     ula = set()
     ulo = set()
 
-    for i, line in enumerate(open("fire_df_08_05.csv")):
+    for i, line in enumerate(open(DATA_PATH)):
         if i == 0:
             continue
 
@@ -122,30 +122,40 @@ def get_wind_interp(fire_coords):
         yield lats, lons, grid
 
 
+change_grids = None
+fire_data = fire_coords = None
+
 resize_wind = True
 resize_threshold = 0.01
 
-fire_data, fire_coords = get_fire_data()
+def preprocess(data_path=DATA_PATH):
+    global fire_data, fire_coords, change_grids
 
-prev = None
-change_grids = []
+    fire_data, fire_coords = get_fire_data()
 
-i = 0
-for time, data in sorted(fire_data.items()):
-    if time.hour >= 23 and time.minute > 0:
-        break
+    prev = None
+    change_grids = []
 
-    if prev is None:
+    i = 0
+    for time, data in sorted(fire_data.items()):
+        if time.hour >= 23 and time.minute > 0:
+            break
+
+        if prev is None:
+            prev = data
+            continue
+
+        i += 1
+
+        if i == 19:
+            pass
+
+        change = data - prev
+
+        change_grids.append((time, change))
+
         prev = data
-        continue
 
-    i += 1
 
-    if i == 19:
-        pass
-
-    change = data - prev
-
-    change_grids.append((time, change))
-
-    prev = data
+if __name__ == '__main__':
+    preprocess()
