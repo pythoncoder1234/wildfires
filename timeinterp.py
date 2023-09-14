@@ -1,4 +1,5 @@
 import numpy as np
+from variables import get_file_data
 
 debug = True
 DATA_PATH = "wind_df_08_05.csv"
@@ -13,6 +14,37 @@ def process_line(line: str):
 
 def get_time_str(index: int):
     return "%02d" % (index // 6) + "%02d" % (index % 6 * 10)
+
+def save(data, first, second, file):
+    print(end=",", file=file)
+    for i, num in enumerate(second):
+        print(num, end="," * (i < len(second) - 1), file=file)
+    print(file=file)
+
+    for i, row in enumerate(data):
+        print(first[i], end=",", file=file)
+        print(*row, sep=",", file=file)
+
+
+def interp(current, prev):
+    output = []
+
+    for i in range(1, 6):
+        copy = np.array(current)
+
+        for x, row in enumerate(current):
+            for y, val in enumerate(row):
+                if x >= 3:
+                    pass
+
+                prev_val = prev[x][y]
+
+                multiply = i / 6
+                copy[x][y] = prev_val + (val - prev_val) * multiply
+
+        output.append(copy)
+
+    return output
 
 
 def time_interp(all_files=False, override=True, *, data_path=DATA_PATH):
@@ -76,39 +108,5 @@ def time_interp(all_files=False, override=True, *, data_path=DATA_PATH):
         print(index, count, "(Something's wrong...)" if index <= count else "(Success, hopefully)")
 
 
-def save(data, first, second, file):
-    print(end=",", file=file)
-    for i, num in enumerate(second):
-        print(num, end="," * (i < len(second) - 1), file=file)
-    print(file=file)
-
-    for i, row in enumerate(data):
-        print(first[i], end=",", file=file)
-        print(*row, sep=",", file=file)
-
-
-def interp(current, prev):
-    output = []
-
-    for i in range(1, 6):
-        copy = np.array(current)
-
-        for x, row in enumerate(current):
-            for y, val in enumerate(row):
-                if x >= 3:
-                    pass
-
-                prev_val = prev[x][y]
-
-                multiply = i / 6
-                copy[x][y] = prev_val + (val - prev_val) * multiply
-
-        output.append(copy)
-
-    return output
-
-
 if __name__ == "__main__":
-    from variables import get_file_data
-
     time_interp(True)
