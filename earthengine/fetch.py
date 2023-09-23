@@ -4,8 +4,8 @@ from init import *
 
 date_range = ["2021-08-01", "2021-08-02"]
 time_str = date_range[0][5:].replace("-", "_", 1)
-fire = False
-wind = False
+fire = True
+wind = True
 
 print(time_str)
 
@@ -14,9 +14,7 @@ if not wind and not fire:
 
 if fire:
     fire_df = get_dataset(dataset="NOAA/GOES/17/FDCF", band=["Power", "Mask"], resolution_km=2)
-    fire_df.dropna(inplace=True)
     fire_df.to_csv(f"fire_df_{time_str}.csv", index=False)
-    print(fire_df.dropna())
 
 if wind:
     bands = ["u_component_of_wind_10m", "v_component_of_wind_10m", "temperature_2m",
