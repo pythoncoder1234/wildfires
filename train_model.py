@@ -42,30 +42,27 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         return self.features[idx], self.labels[idx]
 
-
+outputs = labels = None
 def train(model, train_loader, criterion, optimizer, num_epochs):
+    global outputs, labels
+    losses = []
+
     for epoch in range(num_epochs):
         total_loss = 0.0
+
         for i, (inputs, labels) in enumerate(train_loader):
             optimizer.zero_grad()
-
-            # Forward pass
             outputs = model(inputs)
-
-            # Compute loss
             loss = criterion(outputs, labels)
-
-            # Backward pass
             loss.backward()
-
-            # Update weights
             optimizer.step()
-
-            # Accumulate total loss
             total_loss += loss.item()
+
+        losses.append(total_loss)
 
         # Print the average loss for this epoch
         print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {total_loss / len(train_loader)}')
+
 
 from torch.utils.data import DataLoader
 
@@ -74,5 +71,7 @@ print(data.shape)
 
 ds = CustomDataset(data[:-1], fire[1:])
 dl = DataLoader(ds, batch_size=1, shuffle=True)
+loss_func = nn.MSELoss()
 mlp = MLP(data.shape[1], 5000, data.shape[1] // 2)
-train(mlp, dl, nn.MSELoss(), optim.SGD(mlp.parameters(), lr=0.001), 5)
+train(mlp, dl, loss_func, optim.SGD(mlp.parameters(), lr=1E-4), 5)
+
