@@ -6,7 +6,7 @@ ee.Initialize()
 
 km_lon_deg = 110.574  # Kilometers for 1 degree of longitude
 km_lat_deg = 111.321  # Kilometers for 1 degree of latitude
-date_range = ["2021-08-05", "2021-08-06", 0, 3]
+date_range = ["2021-08-01", "2021-08-02"]
 fire_name = "Dixie"
 
 data = {

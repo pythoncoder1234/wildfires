@@ -2,12 +2,11 @@ import numpy as np
 
 from init import *
 
-date_range = ["2021-08-01", "2021-08-02"]
 time_str = date_range[0][5:].replace("-", "_", 1)
 fire = True
 wind = True
 
-print(time_str)
+print("Date range:", date_range)
 
 if not wind and not fire:
     print("Nothing fetched!")

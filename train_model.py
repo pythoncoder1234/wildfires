@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import normalize
 
 def process_fire(row):
     return np.array(np.nan_to_num(row))
@@ -10,6 +11,7 @@ grouped = merge.groupby('datetime')
 
 wind = grouped['speed'].apply(np.array).to_list()
 fire = np.array(grouped['Power'].apply(process_fire).to_list())
+fire = normalize(fire)
 
 from torch.utils.data import Dataset
 import torch
