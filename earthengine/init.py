@@ -7,6 +7,7 @@ ee.Initialize()
 km_lon_deg = 110.574  # Kilometers for 1 degree of longitude
 km_lat_deg = 111.321  # Kilometers for 1 degree of latitude
 date_range = ["2021-08-01", "2021-08-02"]
+date_ranges = [[f"2021-08-{i:02}", f"2021-08-{i+1:02}"] for i in range(1, 11)]
 fire_name = "Dixie"
 
 data = {
@@ -21,16 +22,24 @@ data = {
 }
 
 
-def get_dataset(dataset, band, resolution_km):
+def multiple_date_fetch(dataset, band, resolution_km, date_ranges) -> list[pd.DataFrame]:
+    out = []
+    for i, dr in enumerate(date_ranges):
+        print(f"Fetching date range {date_ranges[i]}")
+        out.append(get_dataset(dataset, band, resolution_km, dr))
+    return out
+
+
+def get_dataset(dataset, band, resolution_km, dr):
     print(f"Fetching '{dataset}'...")
     fire = data[fire_name]
 
     region = ee.Geometry.Polygon(fire["coordinates"])
     collection = ee.ImageCollection(dataset)
-    collection = collection.select(band).filterDate(*date_range[:2])
+    collection = collection.select(band).filterDate(*dr[:2])
 
-    if len(date_range) > 2:
-        collection = collection.filter(ee.Filter.calendarRange(date_range[2], date_range[3], "HOUR"))
+    if len(dr) > 2:
+        collection = collection.filter(ee.Filter.calendarRange(dr[2], dr[3], "HOUR"))
 
     collection = collection.getRegion(region, resolution_km * 1000).getInfo()
 
