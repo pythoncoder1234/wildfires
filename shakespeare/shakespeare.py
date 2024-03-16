@@ -32,24 +32,22 @@ def preprocess_text():
     return x, y
 
 class SimpleLSTM(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, *args, **kwargs):
+    def __init__(self, input_size, hidden_size, output_size, layers, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # input_size = hidden_size = seq_length = 40
+        # input_size = hidden_size = seq_length = 20
         self.hidden_size = hidden_size
-        self.lstm = nn.LSTM(input_size, hidden_size, 2, batch_first=True)
+        self.n_layers = layers
+        self.lstm = nn.LSTM(input_size, hidden_size, layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, output_size)
 
-    def forward(self, inputs, hidden):
-        global inputs1
-        inputs1 = inputs
-        lstm_out, hidden = self.lstm(inputs, hidden)
-        output = self.fc(lstm_out.view(1, -1))
+    def forward(self, input, hidden):
+        lstm_out, hidden = self.lstm(input.view(len(input), 1, -1), hidden)
+        output = self.fc(lstm_out.view(len(input), -1))
         return output, hidden
 
-    def init_hidden(self):
-        return (torch.zeros(1, 1, self.hidden_size),
-                torch.zeros(1, 1, self.hidden_size))
+    def init_hidden(self, batch_size):
+        return torch.zeros(batch_size, 20, 33), torch.zeros(batch_size, 20, 33)
 
 
 class CustomDataset(Dataset):
@@ -87,16 +85,17 @@ def train(model, train_loader, criterion, optimizer, num_epochs):
 
     return train_loss
 
-special_chars = list("!?.,'\n ")
+
+special_chars = list("!?.,'\n ():")
 characters = np.array([chr(i) for i in range(97, 97 + 26)] + special_chars)
 
 # x, y = preprocess_text()
 x, y = np.load("inputs.npy"), np.load("outputs.npy")
 
-seq_length = 40
+seq_length = 20
 
 print("Preprocessing completed")
 print("Data loader")
-data_loader = DataLoader(CustomDataset(x, y), batch_size=10)
-model = SimpleLSTM(seq_length, seq_length, 1)
+data_loader = DataLoader(CustomDataset(x, y), batch_size=1)
+model = SimpleLSTM(20, 8, seq_length, 2)
 train(model, data_loader, CrossEntropyLoss(), Adam(model.parameters(), lr=0.01), 5)
